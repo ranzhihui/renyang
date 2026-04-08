@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}发布葡萄树 - 葡萄树认养平台{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:center;padding-top:10px;">
+    <div class="form-card">
+        <h2 style="text-align:center;margin-bottom:16px;">&#127793; 发布葡萄树</h2>
+        <form method="post" enctype="multipart/form-data">
+            <label>葡萄树名称</label>
+            <input type="text" name="name" placeholder="如：1号园赤霞珠-18树" required>
+
+            <label>葡萄品种</label>
+            <input type="text" name="category" placeholder="如：阳光玫瑰、赤霞珠" required>
+
+            <label>说明（树况、地块、管理计划等）</label>
+            <textarea name="description" rows="5" placeholder="请描述葡萄树的基本情况" required></textarea>
+
+            <label>上传图片</label>
+            <input type="file" name="image" accept=".png,.jpg,.jpeg,.gif,.webp">
+
+            <label>直播地址（可选）</label>
+            <input type="url" name="live_stream_url" placeholder="如：https://example.com/live/xxx">
+
+            <button type="submit">&#10004; 发布</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

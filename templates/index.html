@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}首页 - 葡萄树认养平台{% endblock %}
+{% block content %}
+
+<section class="hero">
+    <h1>北纬 40&deg; 有机葡萄树认养平台</h1>
+    <p>依托黄金产区生态优势与"一年两熟"核心技术，200余项农残检测为零。<br>认养一棵树，实时看生长，成熟后发货到家或亲临采摘。</p>
+    <div class="hero-actions">
+        {% if session.get('user_id') %}
+            {% if session.get('role') == 'buyer' %}
+                <a class="btn-primary" href="{{ url_for('buyer_dashboard') }}">去认养</a>
+                <a class="btn-outline" href="{{ url_for('my_adoptions') }}">查看我的树</a>
+            {% else %}
+                <a class="btn-primary" href="{{ url_for('worker_dashboard') }}">进入工作台</a>
+            {% endif %}
+        {% else %}
+            <a class="btn-primary" href="{{ url_for('register') }}">立即注册</a>
+            <a class="btn-outline" href="{{ url_for('login') }}">已有账号？登录</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="features">
+    <div class="feature">
+        <span class="feature-icon">&#127793;</span>
+        <h3>认养</h3>
+        <p>在线选树、一键认养，专属果树绑定到你名下</p>
+    </div>
+    <div class="feature">
+        <span class="feature-icon">&#128247;</span>
+        <h3>实时监控</h3>
+        <p>每日农事记录、巡检图片、摄像头直播，生长进度透明可见</p>
+    </div>
+    <div class="feature">
+        <span class="feature-icon">&#128230;</span>
+        <h3>电商发货</h3>
+        <p>果实成熟后提交发货申请，有机葡萄新鲜直达你家</p>
+    </div>
+    <div class="feature">
+        <span class="feature-icon">&#127819;</span>
+        <h3>线下采摘</h3>
+        <p>预约到园采摘，体验田间乐趣，亲手摘下你的葡萄</p>
+    </div>
+</section>
+
+<section class="form-card wide" style="max-width:none;">
+    <h2 style="margin-bottom:8px;">平台说明</h2>
+    <p style="color:var(--text-secondary);margin-bottom:10px;">
+        请用户登录后查看具体葡萄树与成熟状态，若未登录，则无法查看具体葡萄树与成熟状态。
+    </p>
+    <p style="color:var(--text-secondary);">
+        登录后可在买家端进入“认养中心”查看可认养葡萄树；工作人员端可发布每日农事记录、上传巡检图片和直播链接。
+    </p>
+</section>
+
+{% endblock %}

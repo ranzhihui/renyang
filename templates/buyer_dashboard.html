@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}认养中心 - 葡萄树认养平台{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h2>&#127793; 可认养葡萄树</h2>
+    <div class="toolbar-actions">
+        <a class="btn" href="{{ url_for('my_adoptions') }}">&#128247; 实时监控</a>
+        <a class="btn btn-outline-green" href="{{ url_for('buyer_commerce') }}">&#128230; 电商与采摘</a>
+    </div>
+</div>
+
+<div class="grid">
+    {% for tree in trees %}
+    <article class="card">
+        {% if tree.image_path %}
+            <img src="{{ url_for('static', filename=tree.image_path) }}" alt="{{ tree.name }}">
+        {% else %}
+            <div class="card-placeholder">&#127815;</div>
+        {% endif %}
+        <div class="card-body">
+            <h3>{{ tree.name }}</h3>
+            <p>
+                <span class="badge badge-available">可认养</span>
+                {% if tree.is_mature %}
+                    <span class="badge badge-mature">已成熟</span>
+                {% else %}
+                    <span class="badge badge-growing">生长中</span>
+                {% endif %}
+            </p>
+            <p>品种：{{ tree.category }}</p>
+            <p>管理人：{{ tree.worker_name }}</p>
+            <p>{{ tree.description }}</p>
+            <form method="post" action="{{ url_for('adopt_tree', tree_id=tree.id) }}" style="margin-top:auto;">
+                <button type="submit">&#127793; 立即认养</button>
+            </form>
+        </div>
+    </article>
+    {% else %}
+    <div class="empty">
+        <span class="empty-icon">&#127793;</span>
+        <p>暂无可认养葡萄树，请稍后再来。</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

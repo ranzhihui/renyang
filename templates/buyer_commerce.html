@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}电商与采摘 - 葡萄树认养平台{% endblock %}
+{% block content %}
+<h2 class="section-title">&#128230; 电商发货与线下采摘</h2>
+
+<div class="grid">
+    <section class="form-card wide">
+        <h3 style="margin-bottom:12px;">&#128666; 成熟后发货</h3>
+        <form method="post" action="{{ url_for('create_order') }}">
+            <label>选择葡萄树</label>
+            <select name="tree_id" required>
+                <option value="">请选择</option>
+                {% for tree in trees %}
+                    <option value="{{ tree.id }}">{{ tree.name }}（{{ "已成熟" if tree.is_mature else "未成熟" }}）</option>
+                {% endfor %}
+            </select>
+            <label>收货地址</label>
+            <textarea name="address" rows="3" placeholder="请输入详细收货地址" required></textarea>
+            <button type="submit">提交发货申请</button>
+        </form>
+    </section>
+
+    <section class="form-card wide">
+        <h3 style="margin-bottom:12px;">&#127819; 线下采摘预约</h3>
+        <form method="post" action="{{ url_for('create_picking_booking') }}">
+            <label>选择葡萄树</label>
+            <select name="tree_id" required>
+                <option value="">请选择</option>
+                {% for tree in trees %}
+                    <option value="{{ tree.id }}">{{ tree.name }}</option>
+                {% endfor %}
+            </select>
+            <label>到访日期</label>
+            <input type="date" name="visit_date" required>
+            <label>人数</label>
+            <input type="number" min="1" max="20" name="people_count" value="1" required>
+            <label>备注</label>
+            <input type="text" name="note" placeholder="如：希望周末上午入园">
+            <button type="submit">提交采摘预约</button>
+        </form>
+    </section>
+</div>
+
+<h3 class="section-title">我的发货订单</h3>
+{% for order in orders %}
+<section class="issue-card">
+    <p><strong>订单 #{{ order.id }}</strong> &mdash; {{ order.tree_name }}</p>
+    <p>状态：<span class="badge badge-{{ order.status }}">{{ order.status }}</span></p>
+    <p>地址：{{ order.address }}</p>
+</section>
+{% else %}
+<div class="empty"><span class="empty-icon">&#128230;</span><p>暂无发货订单</p></div>
+{% endfor %}
+
+<h3 class="section-title">我的采摘预约</h3>
+{% for booking in bookings %}
+<section class="issue-card">
+    <p><strong>预约 #{{ booking.id }}</strong> &mdash; {{ booking.tree_name }}</p>
+    <p>日期：{{ booking.visit_date }} &middot; 人数：{{ booking.people_count }} &middot; 状态：<span class="badge badge-{{ booking.status }}">{{ booking.status }}</span></p>
+    <p>备注：{{ booking.note or "无" }}</p>
+</section>
+{% else %}
+<div class="empty"><span class="empty-icon">&#127819;</span><p>暂无采摘预约</p></div>
+{% endfor %}
+{% endblock %}

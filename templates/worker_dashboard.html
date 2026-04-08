@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}工作人员台 - 葡萄树认养平台{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h2>&#128221; 工作人员台</h2>
+    <div class="toolbar-actions">
+        <a class="btn" href="{{ url_for('create_tree') }}">&#10133; 发布葡萄树</a>
+    </div>
+</div>
+
+<h3 class="section-title">我发布的葡萄树</h3>
+<div class="grid">
+    {% for tree in trees %}
+    <article class="card">
+        <div class="card-body">
+            <h4>{{ tree.name }}</h4>
+            <p>
+                <span class="badge {{ 'badge-available' if tree.status == 'available' else 'badge-adopted' }}">
+                    {{ "可认养" if tree.status == "available" else "已认养" }}
+                </span>
+                <span class="badge {{ 'badge-mature' if tree.is_mature else 'badge-growing' }}">
+                    {{ "已成熟" if tree.is_mature else "未成熟" }}
+                </span>
+            </p>
+            <p>品种：{{ tree.category }}</p>
+
+            <form method="post" action="{{ url_for('create_tree_update', tree_id=tree.id) }}" enctype="multipart/form-data" style="margin-top:10px;border-top:1px solid var(--border);padding-top:12px;">
+                <label>农事日期</label>
+                <input name="work_date" type="date">
+
+                <label>每日农事记录</label>
+                <input name="task_content" type="text" placeholder="如：施肥、修剪、病虫害巡查" required>
+
+                <label>健康状态</label>
+                <select name="health_status" required>
+                    <option value="excellent">优</option>
+                    <option value="good">良</option>
+                    <option value="warning">一般</option>
+                    <option value="risk">风险</option>
+                </select>
+
+                <label>生长阶段</label>
+                <input name="stage" type="text" placeholder="如：萌芽期 / 挂果期 / 转色期" required>
+
+                <label>更新说明</label>
+                <input name="note" type="text" placeholder="如：已完成浇水与病虫害排查" required>
+
+                <label>巡检图片</label>
+                <input type="file" name="record_image" accept=".png,.jpg,.jpeg,.gif,.webp">
+
+                <label>直播地址（可覆盖）</label>
+                <input type="url" name="live_stream_url" value="{{ tree.live_stream_url or '' }}" placeholder="直播链接">
+
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_mature" value="1" {% if tree.is_mature %}checked{% endif %}>
+                    已成熟（允许买家发货）
+                </label>
+
+                <button type="submit">&#128640; 发布状态更新</button>
+            </form>
+        </div>
+    </article>
+    {% else %}
+    <div class="empty"><span class="empty-icon">&#127793;</span><p>你还没有发布葡萄树，<a href="{{ url_for('create_tree') }}">去发布</a></p></div>
+    {% endfor %}
+</div>
+
+<h3 class="section-title">&#128172; 买家问题处理</h3>
+{% for issue in issues %}
+<section class="issue-card">
+    <p><strong>{{ issue.title }}</strong></p>
+    <p>葡萄树：{{ issue.tree_name }} &middot; 买家：{{ issue.buyer_name }} &middot; 状态：<span class="badge badge-{{ issue.status }}">{{ issue.status }}</span></p>
+    <form method="post" action="{{ url_for('update_issue', issue_id=issue.id) }}" class="form-inline" style="margin-top:8px;">
+        <select name="status">
+            <option value="open" {% if issue.status == "open" %}selected{% endif %}>待处理</option>
+            <option value="processing" {% if issue.status == "processing" %}selected{% endif %}>处理中</option>
+            <option value="resolved" {% if issue.status == "resolved" %}selected{% endif %}>已解决</option>
+        </select>
+        <input type="text" name="response_note" placeholder="处理说明" value="{{ issue.response_note or '' }}">
+        <button type="submit">更新</button>
+    </form>
+</section>
+{% else %}
+<div class="empty"><p>暂无买家问题</p></div>
+{% endfor %}
+
+<h3 class="section-title">&#128666; 发货订单管理</h3>
+{% for order in orders %}
+<section class="issue-card">
+    <p><strong>订单 #{{ order.id }}</strong> &mdash; {{ order.tree_name }} &middot; 买家：{{ order.buyer_name }}</p>
+    <p>地址：{{ order.address }}</p>
+    <form method="post" action="{{ url_for('update_order', order_id=order.id) }}" class="form-inline" style="margin-top:8px;">
+        <select name="status">
+            <option value="pending" {% if order.status == "pending" %}selected{% endif %}>待处理</option>
+            <option value="processing" {% if order.status == "processing" %}selected{% endif %}>备货中</option>
+            <option value="shipped" {% if order.status == "shipped" %}selected{% endif %}>已发货</option>
+            <option value="completed" {% if order.status == "completed" %}selected{% endif %}>已完成</option>
+        </select>
+        <input type="text" value="{{ order.created_at[:10] }}" disabled>
+        <button type="submit">更新</button>
+    </form>
+</section>
+{% else %}
+<div class="empty"><p>暂无发货订单</p></div>
+{% endfor %}
+
+<h3 class="section-title">&#127819; 线下采摘预约管理</h3>
+{% for booking in bookings %}
+<section class="issue-card">
+    <p><strong>预约 #{{ booking.id }}</strong> &mdash; {{ booking.tree_name }} &middot; 买家：{{ booking.buyer_name }}</p>
+    <p>到访：{{ booking.visit_date }} &middot; 人数：{{ booking.people_count }} &middot; 备注：{{ booking.note or "无" }}</p>
+    <form method="post" action="{{ url_for('update_booking', booking_id=booking.id) }}" class="form-inline" style="margin-top:8px;">
+        <select name="status">
+            <option value="pending" {% if booking.status == "pending" %}selected{% endif %}>待确认</option>
+            <option value="confirmed" {% if booking.status == "confirmed" %}selected{% endif %}>已确认</option>
+            <option value="completed" {% if booking.status == "completed" %}selected{% endif %}>已完成</option>
+        </select>
+        <input type="text" value="{{ booking.visit_date }}" disabled>
+        <button type="submit">更新</button>
+    </form>
+</section>
+{% else %}
+<div class="empty"><p>暂无采摘预约</p></div>
+{% endfor %}
+{% endblock %}

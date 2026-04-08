@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}问题反馈 - 葡萄树认养平台{% endblock %}
+{% block content %}
+<h2 class="section-title">&#128172; 认养问题反馈</h2>
+
+<div class="form-card" style="margin-bottom:28px;">
+    <form method="post" action="{{ url_for('create_issue') }}">
+        <label>选择已认养葡萄树</label>
+        <select name="tree_id" required>
+            <option value="">请选择</option>
+            {% for tree in adopted_trees %}
+                <option value="{{ tree.id }}">{{ tree.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label>问题标题</label>
+        <input type="text" name="title" placeholder="如：果实长势异常" required>
+
+        <label>问题描述</label>
+        <textarea name="detail" rows="4" placeholder="请详细描述你遇到的问题" required></textarea>
+
+        <button type="submit">提交问题</button>
+    </form>
+</div>
+
+<h3 class="section-title">我的问题记录</h3>
+{% for issue in issues %}
+<section class="issue-card">
+    <p><strong>{{ issue.title }}</strong> &mdash; {{ issue.tree_name }}</p>
+    <p>{{ issue.detail }}</p>
+    <p>状态：<span class="badge badge-{{ issue.status }}">{{ issue.status }}</span></p>
+    <p>工作人员回复：{{ issue.response_note or "暂无回复" }}</p>
+</section>
+{% else %}
+<div class="empty"><span class="empty-icon">&#128172;</span><p>暂无问题记录</p></div>
+{% endfor %}
+{% endblock %}

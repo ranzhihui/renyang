@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}葡萄树认养平台{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a class="logo" href="{{ url_for('index') }}">&#127815; 葡萄树认养平台</a>
+            <nav>
+                <a href="{{ url_for('index') }}">首页</a>
+                {% if session.get('user_id') %}
+                    {% if session.get('role') == 'worker' %}
+                        <a href="{{ url_for('worker_dashboard') }}">工作人员台</a>
+                    {% else %}
+                        <a href="{{ url_for('buyer_dashboard') }}">认养中心</a>
+                        <a href="{{ url_for('my_adoptions') }}">实时监控</a>
+                        <a href="{{ url_for('buyer_commerce') }}">电商与采摘</a>
+                        <a href="{{ url_for('my_issues') }}">问题反馈</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}">退出 ({{ session.get('username') }})</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">登录</a>
+                    <a href="{{ url_for('register') }}">注册</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="container main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&#127815; 葡萄树认养平台 &mdash; 助力乡村振兴 &middot; 有机生活从一棵树开始</p>
+    </footer>
+</body>
+</html>

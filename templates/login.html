@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}登录 - 葡萄树认养平台{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:center;padding-top:20px;">
+    <div class="form-card">
+        <h2 style="text-align:center;margin-bottom:8px;">&#128274; 用户登录</h2>
+        <p style="text-align:center;font-size:13px;color:var(--text-secondary);margin-bottom:16px;">登录后即可认养葡萄树或管理农事</p>
+        <form method="post">
+            <label>用户名</label>
+            <input type="text" name="username" placeholder="请输入用户名" required>
+
+            <label>密码</label>
+            <input type="password" name="password" placeholder="请输入密码" required>
+
+            <button type="submit">登录</button>
+        </form>
+        <p style="text-align:center;margin-top:14px;font-size:13px;">还没有账号？<a href="{{ url_for('register') }}">立即注册</a></p>
+    </div>
+</div>
+{% endblock %}

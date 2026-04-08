@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}实时监控 - 葡萄树认养平台{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h2>&#128247; 我的葡萄树 &mdash; 实时监控</h2>
+    <div class="toolbar-actions">
+        <a class="btn btn-outline-green" href="{{ url_for('buyer_commerce') }}">&#128230; 电商与采摘</a>
+    </div>
+</div>
+
+<div class="grid">
+    {% for row in adoptions %}
+    <article class="card">
+        {% if row.image_path %}
+            <img src="{{ url_for('static', filename=row.image_path) }}" alt="{{ row.name }}">
+        {% else %}
+            <div class="card-placeholder">&#127815;</div>
+        {% endif %}
+        <div class="card-body">
+            <h3>{{ row.name }}</h3>
+            <p>
+                <span class="badge badge-adopted">已认养</span>
+                <span data-live-mature-badge="{{ row.id }}" class="badge {{ 'badge-mature' if row.is_mature else 'badge-growing' }}">
+                    {{ "已成熟" if row.is_mature else "生长中" }}
+                </span>
+            </p>
+            <p style="font-size:12px;color:var(--text-secondary);">品种：{{ row.category }} &middot; 认养：{{ row.adopted_at[:10] }}</p>
+
+            {% set update = update_map.get(row.id) %}
+            <p class="live-info" data-live-health="{{ row.id }}"><strong>健康：</strong>{{ update.health_status if update else "待更新" }}</p>
+            <p class="live-info" data-live-stage="{{ row.id }}"><strong>阶段：</strong>{{ update.stage if update else "待更新" }}</p>
+            <p class="live-info" data-live-note="{{ row.id }}"><strong>动态：</strong>{{ update.note if update else "工作人员暂未上传巡检信息" }}</p>
+            <p class="live-info" data-live-time="{{ row.id }}"><strong>更新：</strong>{{ update.updated_at if update else "-" }}</p>
+
+            <div class="live-image" data-live-image="{{ row.id }}">
+                {% if update and update.image_path %}
+                    <img src="{{ url_for('static', filename=update.image_path) }}" alt="巡检图">
+                {% endif %}
+            </div>
+
+            <p data-live-stream="{{ row.id }}" style="margin-top:8px;">
+                {% if row.live_stream_url %}
+                    <a class="btn btn-sm" href="{{ row.live_stream_url }}" target="_blank">&#127909; 实时摄像头</a>
+                {% else %}
+                    <span style="font-size:12px;color:var(--text-secondary);">暂无直播地址</span>
+                {% endif %}
+            </p>
+        </div>
+    </article>
+    {% else %}
+    <div class="empty">
+        <span class="empty-icon">&#127793;</span>
+        <p>你还没有认养葡萄树，<a href="{{ url_for('buyer_dashboard') }}">去认养</a></p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+async function refreshTreeStatus() {
+    try {
+        const response = await fetch("{{ url_for('buyer_tree_status_api') }}");
+        if (!response.ok) return;
+        const data = await response.json();
+        for (const item of data) {
+            const healthEl = document.querySelector(`[data-live-health="${item.tree_id}"]`);
+            const stageEl = document.querySelector(`[data-live-stage="${item.tree_id}"]`);
+            const noteEl = document.querySelector(`[data-live-note="${item.tree_id}"]`);
+            const timeEl = document.querySelector(`[data-live-time="${item.tree_id}"]`);
+            const matureEl = document.querySelector(`[data-live-mature-badge="${item.tree_id}"]`);
+            const imageEl = document.querySelector(`[data-live-image="${item.tree_id}"]`);
+            const streamEl = document.querySelector(`[data-live-stream="${item.tree_id}"]`);
+            if (healthEl) healthEl.innerHTML = `<strong>健康：</strong>${item.health_status}`;
+            if (stageEl) stageEl.innerHTML = `<strong>阶段：</strong>${item.stage}`;
+            if (noteEl) noteEl.innerHTML = `<strong>动态：</strong>${item.note}`;
+            if (timeEl) timeEl.innerHTML = `<strong>更新：</strong>${item.updated_at || "-"}`;
+            if (matureEl) {
+                matureEl.className = `badge ${item.is_mature ? "badge-mature" : "badge-growing"}`;
+                matureEl.textContent = item.is_mature ? "已成熟" : "生长中";
+            }
+            if (imageEl) imageEl.innerHTML = item.image_path ? `<img src="/static/${item.image_path}" alt="巡检图">` : "";
+            if (streamEl) {
+                streamEl.innerHTML = item.live_stream_url
+                    ? `<a class="btn btn-sm" href="${item.live_stream_url}" target="_blank">&#127909; 实时摄像头</a>`
+                    : `<span style="font-size:12px;color:var(--text-secondary);">暂无直播地址</span>`;
+            }
+        }
+    } catch (_err) {}
+}
+setInterval(refreshTreeStatus, 10000);
+</script>
+{% endblock %}
